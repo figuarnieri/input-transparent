@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@900&display=swap"
+      rel="stylesheet"
+    />
+
+    <title>Document</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        background-color: #ccc;
+        padding: 24px;
+      }
+      .input-teste {
+        padding: 60px;
+        font-size: 20px;
+      }
+      .__input__wrapper {
+        font-family: "Big Shoulders Display", cursive;
+      }
+      .__input__label {
+        position: relative;
+        display: block;
+      }
+      .__input__placeholder {
+        position: absolute;
+        left: 0px;
+        top: 0px;
+      }
+      .__input__placeholder--transform {
+        transition: transform 0.3s;
+      }
+      .__input__field {
+        background-color: transparent;
+        transition: clip-path 0.3s;
+        outline: none;
+      }
+    </style>
+  </head>
+  <body>
+    <br /><br />
+    <input type="text" placeholder="Teste" class="input-teste" />
+    <script>
+      document.querySelectorAll("[placeholder]").forEach((label) => {
+        const spacing = 8;
+        const placeholderText = label.placeholder;
+        const inputWrapper = Object.assign(document.createElement("div"), {
+          className: "__input__wrapper",
+          innerHTML: `<label class="__input__label">
+            <span class="__input__placeholder"
+              >${placeholderText}</span
+            >
+          </label>
+          <div class="__input__description"></div>`,
+        });
+        label.parentNode.insertBefore(inputWrapper, label);
+        label.removeAttribute('placeholder');
+        label.classList.add('__input__field');
+        const placeholder = inputWrapper.querySelector(".__input__placeholder");
+        placeholder.insertAdjacentElement("afterend", label);
+        const field = inputWrapper.querySelector(".__input__field");
+
+        const paddingLeft = () => parseInt(getComputedStyle(field).paddingLeft);
+        const paddingTop = () => parseInt(getComputedStyle(field).paddingTop);
+        const height = () => parseInt(getComputedStyle(field).height);
+        const borderWidth = () => parseInt(getComputedStyle(field).borderWidth);
+        const placeholderWidth = () =>
+          parseInt(getComputedStyle(placeholder).width);
+        const spacingPaddingLeft = () => spacing + paddingLeft();
+        const { fontSize } = getComputedStyle(field);
+        const clipPathInit = () =>
+          `polygon(${paddingLeft() - spacing}px ${borderWidth()}px, ${
+            paddingLeft() - spacing
+          }px 0px, 0px 0px, 0px 100%, 100% 100%, 100% 0px, ${
+            paddingLeft() - spacing
+          }px 0px, ${paddingLeft() - spacing}px ${borderWidth()}px)`;
+
+        placeholder.style.transform = `translate(${paddingLeft()}px, ${paddingTop()}px)`;
+        placeholder.style.fontSize = `${fontSize}`;
+        field.style.clipPath = clipPathInit();
+        setTimeout(() => {
+          placeholder.classList.add("__input__placeholder--transform");
+        }, 1);
+
+        field.addEventListener("focus", () => {
+          console.log(height() / 2)
+          placeholder.style.transform = `translate(${paddingLeft()}px, -${
+            height() / 2 - paddingTop()
+          }px)`;
+          field.style.clipPath = `polygon(${paddingLeft() - spacing}px ${borderWidth()}px, ${
+            paddingLeft() - spacing
+          }px 0px, 0px 0px, 0px 100%, 100% 100%, 100% 0px, ${
+            placeholderWidth() + spacingPaddingLeft() + 1
+          }px 0px, ${placeholderWidth() + spacingPaddingLeft() + 1}px ${borderWidth()}px)`;
+        });
+        field.addEventListener("blur", () => {
+          if (!field.value) {
+            field.style.clipPath = clipPathInit();
+            placeholder.style.transform = `translate(${paddingLeft()}px, ${paddingTop()}px)`;
+          }
+        });
+        console.log(fontSize);
+      });
+    </script>
+  </body>
+</html>
